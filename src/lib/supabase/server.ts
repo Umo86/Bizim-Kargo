@@ -9,16 +9,15 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+import { supabasePublicKey, supabaseUrl } from "@/lib/supabase/config";
+
 /** The batch shape @supabase/ssr passes to the setAll cookie callback. */
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
 export async function createClient() {
   const cookieStore = await cookies();
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  return createServerClient(supabaseUrl()!, supabasePublicKey()!, {
       cookies: {
         getAll() {
           return cookieStore.getAll();

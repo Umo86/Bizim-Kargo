@@ -10,6 +10,8 @@
 
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
+import { supabaseSecretKey, supabaseUrl } from "@/lib/supabase/config";
+
 export function createAdminClient() {
   // Belt-and-braces: the service-role key must never reach a browser bundle.
   // If this module is ever imported client-side, fail loudly at runtime.
@@ -19,12 +21,12 @@ export function createAdminClient() {
     );
   }
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = supabaseUrl();
+  const serviceRoleKey = supabaseSecretKey();
 
   if (!url || !serviceRoleKey) {
     throw new Error(
-      "Supabase admin client unavailable: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must both be set.",
+      "Supabase admin client unavailable: set NEXT_PUBLIC_SUPABASE_URL plus SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SECRET_KEY for new-style sb_secret keys).",
     );
   }
 

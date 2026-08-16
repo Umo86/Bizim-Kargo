@@ -73,8 +73,8 @@ npm run build
 | Variable | Purpose |
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon/public key |
-| `SUPABASE_SERVICE_ROLE_KEY` | server-only, required in Supabase mode — used by the quote flow (quotes have no anon RLS policies) and admin actions |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | public key (`sb_publishable_...`); classic `NEXT_PUBLIC_SUPABASE_ANON_KEY` also accepted |
+| `SUPABASE_SECRET_KEY` | server-only secret key (`sb_secret_...`), required in Supabase mode — used by the quote flow (quotes have no anon RLS policies) and admin actions; classic `SUPABASE_SERVICE_ROLE_KEY` also accepted |
 | `RESEND_API_KEY` | optional — lead notification emails |
 | `EMAIL_FROM` | sender, e.g. `Bizim Kargo <noreply@yourdomain>` |
 | `NEXT_PUBLIC_SITE_URL` | absolute site URL for emails/metadata |
