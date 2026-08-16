@@ -12,13 +12,18 @@ export default function StickyCta() {
 
   useEffect(() => {
     const sentinel = document.getElementById("hero-sentinel");
-    if (!sentinel || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry) return;
-      // Show only once the sentinel has been scrolled past (above the viewport),
-      // not while it is still below the fold on initial load.
-      setVisible(!entry.isIntersecting && entry.boundingClientRect.top < 0);
-    });
+    if (!sentinel) return;
+    // Show only once the sentinel has been scrolled past (above the viewport),
+    // not while it is still below the fold on initial load. Read the live rect
+    // rather than trusting the observer entry: the sentinel is zero-height, so
+    // entry geometry is unreliable after instant scroll jumps (anchor links,
+    // restored scroll positions).
+    const update = () => {
+      setVisible(sentinel.getBoundingClientRect().top < 0);
+    };
+    update();
+    if (typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(update);
     observer.observe(sentinel);
     return () => observer.disconnect();
   }, []);

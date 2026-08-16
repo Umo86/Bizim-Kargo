@@ -44,10 +44,30 @@ export function supabaseSecretKey(): string | undefined {
 export function isSupabaseConfigured(): boolean {
   const url = supabaseUrl();
   const key = supabasePublicKey();
-  return (
+  const configured =
     typeof url === "string" &&
     url.trim().length > 0 &&
     typeof key === "string" &&
-    key.trim().length > 0
-  );
+    key.trim().length > 0;
+  if (configured) warnIfSecretKeyMissing();
+  return configured;
+}
+
+let warnedSecretKeyMissing = false;
+
+/**
+ * Half-configured Supabase (public keys set, secret key absent) breaks the
+ * customer quote flow with a production-masked server-action error, which is
+ * miserable to debug. Shout about it once in the server logs instead.
+ */
+function warnIfSecretKeyMissing(): void {
+  if (warnedSecretKeyMissing || typeof window !== "undefined") return;
+  if (!supabaseSecretKey()) {
+    warnedSecretKeyMissing = true;
+    console.warn(
+      "[bizim-kargo] Supabase public keys are set but SUPABASE_SECRET_KEY / " +
+        "SUPABASE_SERVICE_ROLE_KEY is missing. The customer quote flow and " +
+        "admin actions will fail until it is added (Project Settings → API Keys).",
+    );
+  }
 }

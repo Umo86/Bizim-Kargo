@@ -159,6 +159,10 @@ export default function StepItems({
             <div className="mt-1.5 space-y-3">
               {state.items.map((row, index) => {
                 const rowError = errors[`item-${row.id}`];
+                const rowErrorId = `item-${row.id}-error`;
+                const invalidProps = rowError
+                  ? { "aria-invalid": true, "aria-describedby": rowErrorId }
+                  : {};
                 const stats = rowStats(row);
                 return (
                   <div key={row.id}>
@@ -169,6 +173,7 @@ export default function StepItems({
                         step={1}
                         inputMode="numeric"
                         aria-label={`Item ${index + 1} quantity`}
+                        {...invalidProps}
                         value={row.quantity}
                         onChange={(e) => onUpdateItem(row.id, "quantity", e.target.value)}
                         className={`${cellInput} ${rowError ? "border-red-300" : ""}`}
@@ -178,6 +183,7 @@ export default function StepItems({
                         min={1}
                         inputMode="decimal"
                         aria-label={`Item ${index + 1} length in centimetres`}
+                        {...invalidProps}
                         value={row.lengthCm}
                         onChange={(e) => onUpdateItem(row.id, "lengthCm", e.target.value)}
                         className={`${cellInput} ${rowError ? "border-red-300" : ""}`}
@@ -187,6 +193,7 @@ export default function StepItems({
                         min={1}
                         inputMode="decimal"
                         aria-label={`Item ${index + 1} width in centimetres`}
+                        {...invalidProps}
                         value={row.widthCm}
                         onChange={(e) => onUpdateItem(row.id, "widthCm", e.target.value)}
                         className={`${cellInput} ${rowError ? "border-red-300" : ""}`}
@@ -196,6 +203,7 @@ export default function StepItems({
                         min={1}
                         inputMode="decimal"
                         aria-label={`Item ${index + 1} height in centimetres`}
+                        {...invalidProps}
                         value={row.heightCm}
                         onChange={(e) => onUpdateItem(row.id, "heightCm", e.target.value)}
                         className={`${cellInput} ${rowError ? "border-red-300" : ""}`}
@@ -205,6 +213,7 @@ export default function StepItems({
                         min={0.1}
                         inputMode="decimal"
                         aria-label={`Item ${index + 1} weight in kilograms per piece`}
+                        {...invalidProps}
                         value={row.weightKg}
                         onChange={(e) => onUpdateItem(row.id, "weightKg", e.target.value)}
                         className={`${cellInput} ${rowError ? "border-red-300" : ""}`}
@@ -223,7 +232,7 @@ export default function StepItems({
                       )}
                     </div>
                     {rowError ? (
-                      <p className="mt-1 text-xs text-red-600">{rowError}</p>
+                      <p id={rowErrorId} className="mt-1 text-xs text-red-600">{rowError}</p>
                     ) : stats.volumetricKg > 0 ? (
                       <p className="mt-1 text-xs text-brand-500">
                         Volumetric weight ≈ {formatKg(stats.volumetricKg)}
