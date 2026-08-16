@@ -12,8 +12,10 @@
 
 /**
  * True when both public Supabase environment variables are present and
- * non-empty. The service-role key is deliberately NOT required here — it is
- * only needed by the admin client, which performs its own check.
+ * non-empty. The service-role key is deliberately NOT required here, but note
+ * that in Supabase mode the quote flow and admin actions use the admin client
+ * (src/lib/supabase/admin.ts), which performs its own check and needs
+ * SUPABASE_SERVICE_ROLE_KEY set.
  */
 export function isSupabaseConfigured(): boolean {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

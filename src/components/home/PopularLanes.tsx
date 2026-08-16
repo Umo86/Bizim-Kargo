@@ -13,13 +13,19 @@ interface LaneCard {
   fromPrice: string;
 }
 
-const LANES: readonly LaneCard[] = [
-  { fromCity: "London", fromCountry: "GB", toCity: "İstanbul", toCountry: "TR", fromPrice: "£59" },
-  { fromCity: "Manchester", fromCountry: "GB", toCity: "Ankara", toCountry: "TR", fromPrice: "£69" },
-  { fromCity: "Birmingham", fromCountry: "GB", toCity: "İzmir", toCountry: "TR", fromPrice: "£65" },
-  { fromCity: "İstanbul", fromCountry: "TR", toCity: "London", toCountry: "GB", fromPrice: "£62" },
-  { fromCity: "Ankara", fromCountry: "TR", toCity: "Manchester", toCountry: "GB", fromPrice: "£72" },
-  { fromCity: "İzmir", fromCountry: "TR", toCity: "Birmingham", toCountry: "GB", fromPrice: "£69" },
+/**
+ * Each fromPrice mirrors the engine's cheapest all-in demo-data total for a
+ * 10 kg parcel (40×30×20 cm) on that lane, rounded DOWN to whole pounds so
+ * "from" never overstates the minimum. Re-check when demo tariffs change —
+ * src/components/home/__tests__/PopularLanes.test.ts guards against drift.
+ */
+export const LANES: readonly LaneCard[] = [
+  { fromCity: "London", fromCountry: "GB", toCity: "İstanbul", toCountry: "TR", fromPrice: "£97" },
+  { fromCity: "Manchester", fromCountry: "GB", toCity: "Ankara", toCountry: "TR", fromPrice: "£97" },
+  { fromCity: "Birmingham", fromCountry: "GB", toCity: "İzmir", toCountry: "TR", fromPrice: "£97" },
+  { fromCity: "İstanbul", fromCountry: "TR", toCity: "London", toCountry: "GB", fromPrice: "£115" },
+  { fromCity: "Ankara", fromCountry: "TR", toCity: "Manchester", toCountry: "GB", fromPrice: "£115" },
+  { fromCity: "İzmir", fromCountry: "TR", toCity: "Birmingham", toCountry: "GB", fromPrice: "£120" },
 ];
 
 export default function PopularLanes() {
@@ -66,7 +72,7 @@ export default function PopularLanes() {
                 </span>
               </span>
               <span className="shrink-0 text-right">
-                <span className="block text-[11px] font-semibold uppercase tracking-wide text-brand-400">
+                <span className="block text-[11px] font-semibold uppercase tracking-wide text-brand-500">
                   from
                 </span>
                 <span className="block text-lg font-bold text-brand-900">{lane.fromPrice}</span>
@@ -74,8 +80,8 @@ export default function PopularLanes() {
             </button>
           ))}
         </div>
-        <p className="mt-5 text-xs text-brand-400">
-          Guide prices for a 10 kg parcel by road groupage. Your exact price depends on
+        <p className="mt-5 text-xs text-brand-500">
+          Guide prices for a 10 kg parcel by road. Your exact price depends on
           size, weight and destination — get a quote for a real comparison.
         </p>
       </div>

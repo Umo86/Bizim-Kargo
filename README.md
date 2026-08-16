@@ -66,6 +66,7 @@ npm run build
 1. Create a project at [supabase.com](https://supabase.com).
 2. In the SQL editor run, in order:
    - `supabase/migrations/0001_init.sql` (schema, RLS policies, triggers)
+   - `supabase/migrations/0002_security_hardening.sql` (quotes RLS lockdown, carrier trust-column guard, suspension flag)
    - `supabase/seed.sql` (optional: the 5 demo carriers with realistic rates)
 3. Copy `.env.example` → `.env.local` and fill in from *Project Settings → API*:
 
@@ -73,7 +74,7 @@ npm run build
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon/public key |
-| `SUPABASE_SERVICE_ROLE_KEY` | server-only, used by admin actions |
+| `SUPABASE_SERVICE_ROLE_KEY` | server-only, required in Supabase mode — used by the quote flow (quotes have no anon RLS policies) and admin actions |
 | `RESEND_API_KEY` | optional — lead notification emails |
 | `EMAIL_FROM` | sender, e.g. `Bizim Kargo <noreply@yourdomain>` |
 | `NEXT_PUBLIC_SITE_URL` | absolute site URL for emails/metadata |

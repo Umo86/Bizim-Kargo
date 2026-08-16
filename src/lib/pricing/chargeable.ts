@@ -4,7 +4,6 @@
  * customer which measure their price was based on. Pure functions, no I/O.
  */
 
-import { KG_PER_M3_WM } from "../types";
 import type { ChargeableBasis, PricingUnit, ShipmentItem } from "../types";
 import { normaliseItems } from "./normalise";
 
@@ -27,8 +26,11 @@ export function volumetricKg(items: ShipmentItem[], divisor: number): number {
  * Compute the full ChargeableBasis for a shipment against one service.
  *
  * - chargeableKg = max(actual kg, volumetric kg) — courier convention.
- * - chargeableM3 = max(actual m³, actual kg / KG_PER_M3_WM) — the freight
+ * - chargeableM3 = max(actual m³, actual kg × divisor / 1e6) — the freight
  *   "weight or measure" rule, so dense cargo pays its weight-equivalent volume.
+ *   The equivalence density comes from the service's own volumetric divisor
+ *   (cm³/kg): sea's divisor 1000 gives the classic 1 t = 1 m³ rule, road's
+ *   3000 gives ≈333 kg per m³.
  * - quantity is whichever of those the tariff's pricing unit calls for
  *   (kg → chargeableKg, cbm → chargeableM3, pallet → piece count).
  *
@@ -46,7 +48,8 @@ export function computeChargeableBasis(
   const actualKg = totals.totalActualKg;
   const volumeM3 = totals.totalVolumeM3;
   const chargeableKg = Math.max(actualKg, volKg);
-  const wmEquivalentM3 = actualKg / KG_PER_M3_WM;
+  // kg × (cm³/kg) ÷ 1e6 = m³ — the W/M equivalence at the service's density.
+  const wmEquivalentM3 = (actualKg * divisor) / 1_000_000;
   const chargeableM3 = Math.max(volumeM3, wmEquivalentM3);
 
   let quantity: number;

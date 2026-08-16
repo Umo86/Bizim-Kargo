@@ -116,7 +116,7 @@ export default function StepItems({
               {errors.vehicleDescription}
             </p>
           ) : (
-            <p className="mt-1 text-xs text-brand-400">
+            <p className="mt-1 text-xs text-brand-500">
               Make, model, and whether it is running or non-running. Companies price vehicle
               moves individually and will confirm an exact price with you.
             </p>
@@ -225,7 +225,7 @@ export default function StepItems({
                     {rowError ? (
                       <p className="mt-1 text-xs text-red-600">{rowError}</p>
                     ) : stats.volumetricKg > 0 ? (
-                      <p className="mt-1 text-xs text-brand-400">
+                      <p className="mt-1 text-xs text-brand-500">
                         Volumetric weight ≈ {formatKg(stats.volumetricKg)}
                       </p>
                     ) : null}

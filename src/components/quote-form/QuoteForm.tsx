@@ -5,7 +5,6 @@ import { useEffect, useState, useTransition, type FormEvent } from "react";
 import { createQuoteAction } from "@/lib/actions";
 import type { ShipmentRequest } from "@/lib/types";
 import {
-  clearDraft,
   emptyRow,
   loadDraft,
   makeRowId,
@@ -303,7 +302,9 @@ export default function QuoteForm() {
     startTransition(async () => {
       try {
         const { quoteId } = await createQuoteAction(request);
-        clearDraft();
+        // The draft deliberately survives submit: the results page's "Edit"
+        // link and browser Back land on "/" and rehydrate the full form from
+        // it. It is cleared on the real conversion (BookingForm).
         router.push(`/quote/${quoteId}`);
       } catch (error) {
         setSubmitError(

@@ -136,7 +136,7 @@ create table public.rate_tiers (
 );
 
 comment on table public.rate_tiers is
-  'Tariff bands per service. flat_price = fixed for the band; price_per_unit = charged across the whole quantity.';
+  'Tariff bands per service. flat_price = fixed for the band; price_per_unit = charged per unit on the portion of the quantity inside the band.';
 
 -- ---------------------------------------------------------------------------
 -- zone_surcharges — per-service zone coverage and flat surcharges
@@ -408,12 +408,13 @@ create policy "zones_admin_all" on public.zone_surcharges
 
 -- ------------------------------------------------------------------- quotes
 
--- Anyone — including anonymous visitors — may store a quote snapshot.
+-- NOTE: both anon policies below are dropped again by 0002_security_hardening
+-- — `using (true)` exposed the whole table to anonymous PostgREST listing
+-- (GET /rest/v1/quotes?select=*). The app now reads/writes quotes through the
+-- service-role client only (src/lib/data.ts), so quotes need no anon policies.
 create policy "quotes_anon_insert" on public.quotes
   for insert with check (true);
 
--- Quotes are readable by anyone holding the id: the unguessable uuid acts as
--- the retrieval secret (capability URL). No listing endpoint is exposed.
 create policy "quotes_select_by_id" on public.quotes
   for select using (true);
 

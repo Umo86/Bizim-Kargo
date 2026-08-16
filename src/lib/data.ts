@@ -14,6 +14,7 @@
 
 import { DEMO_CARRIERS, DEMO_CARRIERS_BY_ID, DEMO_SERVICES } from "./demo-data";
 import { isRejection, quoteService, resolveZone } from "./pricing";
+import { createAdminClient } from "./supabase/admin";
 import { isSupabaseConfigured } from "./supabase/config";
 import { createClient } from "./supabase/server";
 import type {
@@ -490,12 +491,15 @@ export async function getServicesForLane(
   }
 
   const supabase = await createClient();
+  // carriers!inner: the embed must exist so the suspended filter applies to
+  // every row — services of suspended carriers never reach the quote engine.
   const { data, error } = await supabase
     .from("carrier_services")
-    .select("*, carriers(*), rate_tiers(*), zone_surcharges(*)")
+    .select("*, carriers!inner(*), rate_tiers(*), zone_surcharges(*)")
     .eq("origin", origin)
     .eq("destination", destination)
-    .eq("active", true);
+    .eq("active", true)
+    .eq("carriers.suspended", false);
 
   if (error) {
     throw new Error(`Could not load carrier services: ${error.message}`);
@@ -532,7 +536,11 @@ export async function saveQuote(
     return id;
   }
 
-  const supabase = await createClient();
+  // Quotes have no anon RLS policies (they would let anyone enumerate the
+  // whole table via PostgREST) — reads and writes go through the service-role
+  // client from trusted server code instead, preserving the uuid-as-capability
+  // model: only a caller holding a quote's id can retrieve it.
+  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("quotes")
     .insert({ request, results: { results, rejections } })
@@ -553,7 +561,9 @@ export async function getQuote(id: string): Promise<StoredQuote | null> {
     return demoStore().quotes.get(id) ?? null;
   }
 
-  const supabase = await createClient();
+  // Service-role client: see saveQuote. The isUuid guard above plus the
+  // .eq("id", id) filter keep quote retrieval capability-scoped to the id.
+  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("quotes")
     .select("id, request, results")
@@ -595,28 +605,31 @@ export async function createLead(input: CreateLeadInput): Promise<string> {
     return lead.id;
   }
 
+  // Generate the id here and insert WITHOUT `.select()`: anonymous customers
+  // have no SELECT policy on leads (only the receiving carrier does), so an
+  // INSERT ... RETURNING round-trip would be rejected by RLS. Without
+  // `.select()` supabase-js sends Prefer: return=minimal and the insert passes
+  // the anon insert policy.
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("leads")
-    .insert({
-      quote_id: quoteId,
-      carrier_id: carrierId,
-      service_id: serviceId,
-      customer_name: contact.name,
-      customer_email: contact.email,
-      customer_phone: contact.phone,
-      preferred_contact: contact.preferredContact,
-      notes: contact.notes ?? null,
-      price_snapshot: priceSnapshot,
-      status: "new",
-    })
-    .select("id")
-    .single();
+  const id = crypto.randomUUID();
+  const { error } = await supabase.from("leads").insert({
+    id,
+    quote_id: quoteId,
+    carrier_id: carrierId,
+    service_id: serviceId,
+    customer_name: contact.name,
+    customer_email: contact.email,
+    customer_phone: contact.phone,
+    preferred_contact: contact.preferredContact,
+    notes: contact.notes ?? null,
+    price_snapshot: priceSnapshot,
+    status: "new",
+  });
 
   if (error) {
     throw new Error(`Could not submit your request to the carrier: ${error.message}`);
   }
-  return (data as { id: string }).id;
+  return id;
 }
 
 /**

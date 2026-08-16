@@ -9,6 +9,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent } from "react";
+import { clearDraft } from "@/components/quote-form/draft";
 import { bookQuoteAction } from "@/lib/actions";
 import type { LeadContact } from "@/lib/types";
 
@@ -87,6 +88,9 @@ export default function BookingForm({
           email: carrier.contactEmail,
           phone: carrier.contactPhone,
         });
+        // Booking is the real conversion point — only now is the quote-form
+        // draft cleared, so "Edit"/Back before booking restores the form.
+        clearDraft();
         router.push(`/quote/${quoteId}/booked?${query.toString()}`);
       } catch (error) {
         setServerError(
@@ -99,7 +103,7 @@ export default function BookingForm({
   }
 
   const inputClass = (invalid: boolean) =>
-    `w-full rounded-lg border px-3 py-2.5 text-sm text-brand-950 placeholder:text-brand-300 focus:border-brand-500 ${
+    `w-full rounded-lg border px-3 py-2.5 text-sm text-brand-950 placeholder:text-brand-500 focus:border-brand-500 ${
       invalid ? "border-accent-400" : "border-brand-200"
     }`;
 
@@ -193,7 +197,7 @@ export default function BookingForm({
           htmlFor="booking-notes"
           className="text-xs font-semibold uppercase tracking-wide text-brand-700"
         >
-          Notes <span className="font-normal normal-case text-brand-400">(optional)</span>
+          Notes <span className="font-normal normal-case text-brand-500">(optional)</span>
         </label>
         <textarea
           id="booking-notes"

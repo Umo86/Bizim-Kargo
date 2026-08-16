@@ -75,6 +75,27 @@ export default function ResultsList({
 }) {
   const [sort, setSort] = useState<SortKey>("cheapest");
 
+  // Results are per-service; the heading counts distinct companies.
+  const companyCount = useMemo(
+    () => new Set(results.map((r) => r.carrierId)).size,
+    [results],
+  );
+
+  // Show at most one rejection per carrier, and none for carriers that are
+  // already quoting via another service — "could not quote" must never name a
+  // company whose price card is right above.
+  const visibleRejections = useMemo(() => {
+    const quotingCarrierIds = new Set(results.map((r) => r.carrierId));
+    const seen = new Set<string>();
+    return rejections.filter((rejection) => {
+      if (quotingCarrierIds.has(rejection.carrierId) || seen.has(rejection.carrierId)) {
+        return false;
+      }
+      seen.add(rejection.carrierId);
+      return true;
+    });
+  }, [results, rejections]);
+
   const instant = useMemo(
     () => results.filter((r) => !r.requiresManualQuote),
     [results],
@@ -111,9 +132,9 @@ export default function ResultsList({
         <>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-xl font-bold tracking-tight text-brand-900 sm:text-2xl">
-              {results.length === 1
+              {companyCount === 1
                 ? "1 company can take this shipment"
-                : `${results.length} companies can take this shipment`}
+                : `${companyCount} companies can take this shipment`}
             </h2>
             {results.length > 1 && instant.length > 0 && (
               <div
@@ -183,7 +204,7 @@ export default function ResultsList({
         </p>
       </div>
 
-      {rejections.length > 0 && (
+      {visibleRejections.length > 0 && (
         <details className="group rounded-2xl border border-brand-100 bg-brand-50/60">
           <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-sm font-semibold text-brand-700 [&::-webkit-details-marker]:hidden">
             Why don&apos;t I see more companies?
@@ -206,7 +227,7 @@ export default function ResultsList({
               shipment. These companies could not quote this one:
             </p>
             <ul className="mt-3 space-y-2.5">
-              {rejections.map((rejection) => (
+              {visibleRejections.map((rejection) => (
                 <li key={rejection.serviceId} className="text-sm text-brand-600">
                   <span className="font-semibold text-brand-800">
                     {rejectionCarrierNames[rejection.carrierId] ??

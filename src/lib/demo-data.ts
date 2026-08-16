@@ -88,7 +88,7 @@ function flatTier(
   return { unit, fromQty, toQty, flatPrice, pricePerUnit: null };
 }
 
-/** A band charged per unit across the WHOLE shipment quantity. */
+/** A band charged per unit on the portion of the quantity inside the band. */
 function perUnitTier(
   unit: PricingUnit,
   fromQty: number,
@@ -453,10 +453,12 @@ export const DEMO_SERVICES: CarrierService[] = [
     maxDimCm: 240,
     active: true,
     tiers: [
-      // Consecutive flat bands — each is the all-in price for that many pallets.
+      // Consecutive flat bands hold per-band increments (the engine sums every
+      // band passed through). All-in totals: 1 pallet £240, 2 £400, 3 £545,
+      // then £165/pallet beyond.
       flatTier("pallet", 0, 1, 240),
-      flatTier("pallet", 1, 2, 400),
-      flatTier("pallet", 2, 3, 545),
+      flatTier("pallet", 1, 2, 160),
+      flatTier("pallet", 2, 3, 145),
       perUnitTier("pallet", 3, null, 165),
     ],
     zones: gbTrZones({
@@ -493,9 +495,10 @@ export const DEMO_SERVICES: CarrierService[] = [
     maxDimCm: 240,
     active: true,
     tiers: [
+      // Per-band increments; all-in totals: 1 pallet £230, 2 £385, 3 £525.
       flatTier("pallet", 0, 1, 230),
-      flatTier("pallet", 1, 2, 385),
-      flatTier("pallet", 2, 3, 525),
+      flatTier("pallet", 1, 2, 155),
+      flatTier("pallet", 2, 3, 140),
       perUnitTier("pallet", 3, null, 160),
     ],
     zones: gbTrZones({

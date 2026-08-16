@@ -8,7 +8,7 @@ export const labelClass =
 
 export const inputClass =
   "mt-1.5 w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm " +
-  "text-brand-950 placeholder:text-brand-300 focus:border-brand-500 " +
+  "text-brand-950 placeholder:text-brand-500 focus:border-brand-500 " +
   "disabled:cursor-not-allowed disabled:border-brand-100 disabled:bg-brand-50 " +
   "disabled:text-brand-400";
 

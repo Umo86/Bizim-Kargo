@@ -120,7 +120,8 @@ export default async function BookedPage({
 
           <div className="mt-6 space-y-2 text-center">
             <p className="text-sm text-brand-700">
-              We&apos;ve emailed you a copy of this request for your records.
+              Keep a note of these contact details — a copy of your request is
+              also on its way to your inbox.
             </p>
             <p className="text-xs text-brand-500">
               Bizim Kargo never takes payment — you pay{" "}

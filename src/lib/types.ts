@@ -115,9 +115,10 @@ export type Currency = "GBP" | "EUR" | "USD";
 export type PricingUnit = "kg" | "cbm" | "pallet";
 
 /**
- * One priced band of a service's tariff.
- * Either flatPrice (a fixed price for any quantity in the band) or
- * pricePerUnit (band is charged per unit across the whole quantity) is set.
+ * One priced band of a service's tariff. Bands price cumulatively: every band
+ * a quantity passes through contributes. Either flatPrice (the band's whole
+ * flat amount is added as soon as q > fromQty) or pricePerUnit (charged per
+ * unit on the portion of the quantity that falls inside the band) is set.
  * Bands are half-open: fromQty < q ≤ toQty. toQty null = open-ended.
  */
 export interface RateTier {

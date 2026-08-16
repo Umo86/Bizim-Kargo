@@ -207,8 +207,8 @@ values
 insert into public.rate_tiers (service_id, unit, from_qty, to_qty, flat_price, price_per_unit, sort)
 values
   ('5e100000-0000-4000-8000-000000000204', 'pallet', 0, 1, 240, null, 0),
-  ('5e100000-0000-4000-8000-000000000204', 'pallet', 1, 2, 400, null, 1),
-  ('5e100000-0000-4000-8000-000000000204', 'pallet', 2, 3, 545, null, 2),
+  ('5e100000-0000-4000-8000-000000000204', 'pallet', 1, 2, 160, null, 1),
+  ('5e100000-0000-4000-8000-000000000204', 'pallet', 2, 3, 145, null, 2),
   ('5e100000-0000-4000-8000-000000000204', 'pallet', 3, null, null, 165, 3);
 insert into public.zone_surcharges (service_id, zone, flat, served)
 values
@@ -232,8 +232,8 @@ values
 insert into public.rate_tiers (service_id, unit, from_qty, to_qty, flat_price, price_per_unit, sort)
 values
   ('5e100000-0000-4000-8000-000000000205', 'pallet', 0, 1, 230, null, 0),
-  ('5e100000-0000-4000-8000-000000000205', 'pallet', 1, 2, 385, null, 1),
-  ('5e100000-0000-4000-8000-000000000205', 'pallet', 2, 3, 525, null, 2),
+  ('5e100000-0000-4000-8000-000000000205', 'pallet', 1, 2, 155, null, 1),
+  ('5e100000-0000-4000-8000-000000000205', 'pallet', 2, 3, 140, null, 2),
   ('5e100000-0000-4000-8000-000000000205', 'pallet', 3, null, null, 160, 3);
 insert into public.zone_surcharges (service_id, zone, flat, served)
 values

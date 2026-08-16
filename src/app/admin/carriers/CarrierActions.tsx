@@ -7,8 +7,6 @@ interface CarrierActionsProps {
   carrierId: string;
   verified: boolean;
   suspended: boolean;
-  /** A carrier with no services cannot be suspended (nothing to deactivate). */
-  hasServices: boolean;
   /** Demo mode: actions would throw, so render disabled buttons instead. */
   demo: boolean;
 }
@@ -21,7 +19,6 @@ export default function CarrierActions({
   carrierId,
   verified,
   suspended,
-  hasServices,
   demo,
 }: CarrierActionsProps) {
   const [pending, startTransition] = useTransition();
@@ -58,11 +55,8 @@ export default function CarrierActions({
         </button>
         <button
           type="button"
-          disabled={demo || pending || !hasServices}
-          title={
-            demoTitle ??
-            (!hasServices ? "This carrier has no services to suspend" : undefined)
-          }
+          disabled={demo || pending}
+          title={demoTitle}
           onClick={() => run(() => setCarrierSuspendedAction({ carrierId, suspended: !suspended }))}
           className={
             suspended

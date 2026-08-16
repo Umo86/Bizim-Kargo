@@ -31,7 +31,7 @@ export default function StepDetails({ state, errors, onPatch }: StepDetailsProps
         <div>
           <label htmlFor="ready-date" className={labelClass}>
             Collection-ready date{" "}
-            <span className="font-normal normal-case tracking-normal text-brand-400">
+            <span className="font-normal normal-case tracking-normal text-brand-500">
               (optional)
             </span>
           </label>
@@ -43,12 +43,12 @@ export default function StepDetails({ state, errors, onPatch }: StepDetailsProps
             onChange={(event) => onPatch({ readyDate: event.target.value })}
             className={`${inputClass} mt-1.5`}
           />
-          <p className="mt-1 text-xs text-brand-400">Not sure yet? Leave it blank.</p>
+          <p className="mt-1 text-xs text-brand-500">Not sure yet? Leave it blank.</p>
         </div>
         <div>
           <label htmlFor="declared-value" className={labelClass}>
             Declared value{" "}
-            <span className="font-normal normal-case tracking-normal text-brand-400">
+            <span className="font-normal normal-case tracking-normal text-brand-500">
               (optional)
             </span>
           </label>
@@ -89,35 +89,37 @@ export default function StepDetails({ state, errors, onPatch }: StepDetailsProps
               {errors.declaredValue}
             </p>
           ) : (
-            <p className="mt-1 text-xs text-brand-400">
+            <p className="mt-1 text-xs text-brand-500">
               The value of your goods, used to price insurance cover.
             </p>
           )}
         </div>
       </div>
 
-      <div
-        className={`mt-5 rounded-lg border border-brand-100 bg-brand-50/60 p-4 transition ${
-          insurable ? "" : "opacity-60"
-        }`}
-      >
+      {/* The disabled dimming stays off the "Enter a declared value…" line —
+          instructional text must keep AA contrast even in the disabled state. */}
+      <div className="mt-5 rounded-lg border border-brand-100 bg-brand-50/60 p-4 transition">
         <label className="flex items-start gap-3">
           <input
             type="checkbox"
             disabled={!insurable}
             checked={state.wantsInsurance}
             onChange={(event) => onPatch({ wantsInsurance: event.target.checked })}
-            className="mt-0.5 h-4 w-4 shrink-0 rounded border-brand-300 accent-brand-700"
+            className={`mt-0.5 h-4 w-4 shrink-0 rounded border-brand-300 accent-brand-700 ${
+              insurable ? "" : "opacity-60"
+            }`}
           />
           <span>
-            <span className="block text-sm font-semibold text-brand-900">
-              Add insurance cover
-            </span>
-            <span className="mt-0.5 block text-xs text-brand-500">
-              Underwritten by the carrier, typically 1.5–3% of value.
+            <span className={insurable ? "" : "opacity-60"}>
+              <span className="block text-sm font-semibold text-brand-900">
+                Add insurance cover
+              </span>
+              <span className="mt-0.5 block text-xs text-brand-500">
+                Underwritten by the carrier, typically 1.5–3% of value.
+              </span>
             </span>
             {!insurable ? (
-              <span className="mt-0.5 block text-xs text-brand-400">
+              <span className="mt-0.5 block text-xs text-brand-500">
                 Enter a declared value above to enable cover.
               </span>
             ) : null}

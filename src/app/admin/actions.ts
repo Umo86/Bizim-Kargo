@@ -64,9 +64,10 @@ export async function setCarrierVerifiedAction(input: {
 }
 
 /**
- * Suspend or reactivate a carrier. The carriers table has no suspended flag,
- * so suspension deactivates every service the carrier has — it immediately
- * stops appearing in quotes. Reactivating re-enables all of its services.
+ * Suspend or reactivate a carrier via carriers.suspended. The flag removes
+ * the carrier from quoting (getServicesForLane filters on it) without
+ * touching carrier_services.active, so the carrier's own per-service on/off
+ * choices survive a suspend/unsuspend cycle intact.
  */
 export async function setCarrierSuspendedAction(input: {
   carrierId: string;
@@ -78,13 +79,17 @@ export async function setCarrierSuspendedAction(input: {
   await requireSupabaseAdmin();
 
   const admin = createAdminClient();
-  const { error } = await admin
-    .from("carrier_services")
-    .update({ active: !suspended })
-    .eq("carrier_id", carrierId);
+  const { data, error } = await admin
+    .from("carriers")
+    .update({ suspended })
+    .eq("id", carrierId)
+    .select("id");
 
   if (error) {
-    throw new Error(`Could not update the carrier's services: ${error.message}`);
+    throw new Error(`Could not update the carrier: ${error.message}`);
+  }
+  if (!data || data.length === 0) {
+    throw new Error("Carrier not found.");
   }
 
   revalidatePath("/admin/carriers");

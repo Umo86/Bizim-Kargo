@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { KG_PER_M3_WM } from "../../types";
 import type { ShipmentItem } from "../../types";
 import { computeChargeableBasis, volumetricKg } from "../chargeable";
 import { normaliseItems } from "../normalise";
@@ -86,12 +85,27 @@ describe("computeChargeableBasis", () => {
 
   it("applies the W/M rule for cbm pricing: dense 100 kg in 0.1 m³", () => {
     // 50 × 50 × 40 cm = 100,000 cm³ = 0.1 m³ at 100 kg.
+    // Road divisor 3000 → W/M equivalent 100 kg × 3000 / 1e6 = 0.3 m³.
     const dense = box({ lengthCm: 50, widthCm: 50, heightCm: 40, weightKg: 100 });
     const basis = computeChargeableBasis([dense], 3000, "cbm");
     expect(basis.volumeM3).toBeCloseTo(0.1, 10);
-    expect(basis.chargeableM3).toBeCloseTo(100 / KG_PER_M3_WM, 10);
-    expect(basis.quantity).toBeCloseTo(100 / KG_PER_M3_WM, 10);
+    expect(basis.chargeableM3).toBeCloseTo(0.3, 10);
+    expect(basis.quantity).toBeCloseTo(0.3, 10);
     expect(basis.explanation).toContain("weight-or-measure");
+  });
+
+  it("derives the W/M equivalence from the divisor: sea charges 1 t = 1 m³", () => {
+    // 1,000 kg packed into 1 m³ on a sea service (divisor 1000): the W/M
+    // equivalent is exactly 1 m³, not the road 3.003 m³ — dense sea shipments
+    // must not be priced at the road density (regression for the 333 kg/m³ bug).
+    const dense = box({ lengthCm: 100, widthCm: 100, heightCm: 100, weightKg: 1000 });
+    const seaBasis = computeChargeableBasis([dense], 1000, "cbm");
+    expect(seaBasis.chargeableM3).toBeCloseTo(1, 10);
+    expect(seaBasis.quantity).toBeCloseTo(1, 10);
+
+    // The same load on a road service (divisor 3000) counts as 3 m³.
+    const roadBasis = computeChargeableBasis([dense], 3000, "cbm");
+    expect(roadBasis.chargeableM3).toBeCloseTo(3, 10);
   });
 
   it("charges genuinely voluminous cbm loads on their actual volume", () => {

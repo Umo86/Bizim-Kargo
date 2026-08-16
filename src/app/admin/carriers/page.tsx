@@ -11,6 +11,8 @@ export const metadata: Metadata = { title: "Carriers" };
 interface AdminCarrierRow {
   carrier: Carrier;
   createdAt: string | null;
+  /** carriers.suspended — admin-set flag, always false in demo mode. */
+  suspended: boolean;
   serviceCount: number;
   activeServiceCount: number;
 }
@@ -29,6 +31,7 @@ interface CarrierDbRow {
   review_count: number | string;
   years_operating: number | string | null;
   logo_url: string | null;
+  suspended: boolean;
   created_at: string;
   carrier_services: Array<{ id: string; active: boolean }>;
 }
@@ -40,6 +43,7 @@ async function loadCarriers(): Promise<AdminCarrierRow[]> {
       return {
         carrier,
         createdAt: null,
+        suspended: false,
         serviceCount: services.length,
         activeServiceCount: services.filter((s) => s.active).length,
       };
@@ -72,6 +76,7 @@ async function loadCarriers(): Promise<AdminCarrierRow[]> {
       logoUrl: row.logo_url,
     },
     createdAt: row.created_at,
+    suspended: row.suspended,
     serviceCount: row.carrier_services.length,
     activeServiceCount: row.carrier_services.filter((s) => s.active).length,
   }));
@@ -130,8 +135,7 @@ export default async function AdminCarriersPage() {
             </tr>
           </thead>
           <tbody>
-            {sorted.map(({ carrier, createdAt, serviceCount, activeServiceCount }) => {
-              const suspended = serviceCount > 0 && activeServiceCount === 0;
+            {sorted.map(({ carrier, createdAt, suspended, serviceCount, activeServiceCount }) => {
               return (
                 <tr
                   key={carrier.id}
@@ -169,13 +173,13 @@ export default async function AdminCarriersPage() {
                     {createdAt ? dateFormatter.format(new Date(createdAt)) : "—"}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
-                    {serviceCount === 0 ? (
-                      <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-xs font-semibold text-brand-700">
-                        No services
-                      </span>
-                    ) : suspended ? (
+                    {suspended ? (
                       <span className="rounded-full bg-accent-100 px-2.5 py-0.5 text-xs font-semibold text-accent-800">
                         Suspended
+                      </span>
+                    ) : serviceCount === 0 ? (
+                      <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-xs font-semibold text-brand-700">
+                        No services
                       </span>
                     ) : (
                       <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
@@ -188,7 +192,6 @@ export default async function AdminCarriersPage() {
                       carrierId={carrier.id}
                       verified={carrier.verified}
                       suspended={suspended}
-                      hasServices={serviceCount > 0}
                       demo={demo}
                     />
                   </td>
@@ -205,9 +208,10 @@ export default async function AdminCarriersPage() {
       </div>
 
       <p className="mt-4 text-xs leading-relaxed text-brand-500">
-        Suspending a carrier deactivates all of its services, removing it from
-        quotes immediately; activating re-enables them all. Verification grants
-        the badge shown to customers on every quote.
+        Suspending a carrier removes it from quotes immediately without touching
+        its own per-service settings; activating restores exactly the services
+        the carrier had enabled. Verification grants the badge shown to
+        customers on every quote.
       </p>
     </>
   );

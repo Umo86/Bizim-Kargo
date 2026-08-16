@@ -196,7 +196,7 @@ describe("quoteService — build-up", () => {
 // ---------------------------------------------------------------------------
 
 describe("quoteService — pricing units", () => {
-  it("charges cbm services on max(actual m³, kg / 333) — the W/M rule", () => {
+  it("charges cbm services on max(actual m³, kg × divisor / 1e6) — the W/M rule", () => {
     const service = makeService({
       serviceType: "volume",
       volumetricDivisor: 3000,
@@ -207,14 +207,14 @@ describe("quoteService — pricing units", () => {
     });
     const request = makeRequest({
       serviceType: "volume",
-      // 50 × 50 × 40 cm = 0.1 m³ at a dense 100 kg.
+      // 50 × 50 × 40 cm = 0.1 m³ at a dense 100 kg → W/M 0.3 m³ at divisor 3000.
       items: [{ quantity: 1, lengthCm: 50, widthCm: 50, heightCm: 40, weightKg: 100 }],
     });
     const result = expectResult(quoteService(service, carrier, request));
     expect(result.basis.unit).toBe("cbm");
-    expect(result.basis.chargeableM3).toBeCloseTo(100 / 333, 10);
-    expect(result.basis.quantity).toBeCloseTo(100 / 333, 10);
-    // 0.3003 m³ sits inside the 1 m³ minimum flat band.
+    expect(result.basis.chargeableM3).toBeCloseTo(0.3, 10);
+    expect(result.basis.quantity).toBeCloseTo(0.3, 10);
+    // 0.3 m³ sits inside the 1 m³ minimum flat band.
     expect(result.total).toBe(40);
   });
 
